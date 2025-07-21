@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  FILE
+}
+
+enum SkillType {
+  OFFERING
+  SEEKING
+}
+
+model User {
+  id                  Int         @id @default(autoincrement())
+  email               String      @unique
+  username            String
+  password            String
+  bio                 String?
+  profilePicture      String?
+  status              String?
+  lastSeen            DateTime?
+  createdAt           DateTime    @default(now())
+  isVerified          Boolean     @default(false)
+  isAcceptingMessages Boolean     @default(true)
+
+  // Relations
+  sentMessages        Message[]   @relation("SentMessages")
+  receivedMessages    Message[]   @relation("ReceivedMessages")
+  callerCalls         VideoCall[] @relation("Caller")
+  receiverCalls       VideoCall[] @relation("Receiver")
+  notifications       Notification[]
+  skills              UserSkill[]
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  content     String
+  type        MessageType
+  attachments String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+  senderId    Int
+  receiverId  Int?
+  isRead      Boolean   @default(false)
+
+  // Relations
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User? @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model VideoCall {
+  id           Int       @id @default(autoincrement())
+  callerId     Int
+  receiverId   Int
+  startTime    DateTime  @default(now())
+  endTime      DateTime?
+  callDuration Int?
+  callStatus   String?   // ongoing, ended, missed
+  recordingUrl String?
+  isGroupCall  Boolean   @default(false)
+  callType     String?   // INSTANT or SCHEDULED
+
+  // Relations
+  caller       User      @relation("Caller", fields: [callerId], references: [id])
+  receiver     User      @relation("Receiver", fields: [receiverId], references: [id])
+}
+
+model Notification {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  message     String
+  isRead      Boolean   @default(false)
+  type        String?   // CALL_STARTED, MESSAGE_RECEIVED, etc.
+  redirectUrl String?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Skill {
+  id            Int         @id @default(autoincrement())
+  name          String      @unique
+  userSkills    UserSkill[]
+}
+
+model UserSkill {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  skillId   Int
+  type      SkillType
+
+  user      User       @relation(fields: [userId], references: [id])
+  skill     Skill      @relation(fields: [skillId], references: [id])
+
+  @@unique([userId, skillId, type])
+}
