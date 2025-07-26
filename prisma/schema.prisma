@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+   binaryTargets = ["native", "debian-openssl-1.1.x"]
   // output   = "../app/generated/prisma"
 }
 
@@ -21,14 +22,16 @@ enum SkillType {
 }
 
 model User {
-  id                  Int         @id @default(autoincrement())
+  id                  String      @id @default(uuid())
   email               String      @unique
-  username            String
+  username            String      @unique
   password            String
   bio                 String?
   profilePicture      String?
   status              String?
   lastSeen            DateTime?
+  verifyCode          String  
+  verifyCodeExpiry    DateTime
   createdAt           DateTime    @default(now())
   isVerified          Boolean     @default(false)
   isAcceptingMessages Boolean     @default(true)
@@ -43,14 +46,14 @@ model User {
 }
 
 model Message {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(uuid())
   content     String
   type        MessageType
   attachments String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
-  senderId    Int
-  receiverId  Int?
+  senderId    String
+  receiverId  String?
   isRead      Boolean   @default(false)
 
   // Relations
@@ -59,9 +62,9 @@ model Message {
 }
 
 model VideoCall {
-  id           Int       @id @default(autoincrement())
-  callerId     Int
-  receiverId   Int
+  id           String    @id @default(uuid())
+  callerId     String
+  receiverId   String
   startTime    DateTime  @default(now())
   endTime      DateTime?
   callDuration Int?
@@ -76,8 +79,8 @@ model VideoCall {
 }
 
 model Notification {
-  id          Int       @id @default(autoincrement())
-  userId      Int
+  id          String    @id @default(uuid())
+  userId      String
   message     String
   isRead      Boolean   @default(false)
   type        String?   // CALL_STARTED, MESSAGE_RECEIVED, etc.
@@ -89,15 +92,15 @@ model Notification {
 }
 
 model Skill {
-  id            Int         @id @default(autoincrement())
-  name          String      @unique
+  id          String    @id @default(uuid())
+  name          String  @unique
   userSkills    UserSkill[]
 }
 
 model UserSkill {
-  id        Int        @id @default(autoincrement())
-  userId    Int
-  skillId   Int
+  id        String      @id @default(uuid())
+  userId    String
+  skillId   String
   type      SkillType
 
   user      User       @relation(fields: [userId], references: [id])
