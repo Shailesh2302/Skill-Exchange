@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { boolean, z } from "zod";
+import  * as z  from "zod";
 import { useActionState, useEffect } from "react";
 import signupAction from "@/actions/signUpAction";
 import { signUpSchema } from "@/schemas/signUpSchema";
@@ -39,11 +39,7 @@ export default function SignupCard() {
     username: "",
   });
 
-  const onSubmit = async (data: {
-    username: string;
-    email: string;
-    password: string;
-  }) => {
+  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     const formData = new FormData();
     formData.append("username", data.username);
     formData.append("email", data.email);
@@ -58,13 +54,10 @@ export default function SignupCard() {
     if (state.error) {
       toast.error(state.error);
     }
-
+    
     if (state.success) {
       toast.success(state.message || "Please verify the code");
-
-
- router.replace(`/verify/${state.username}`);
-
+      router.replace(`/verify/${state.username}`);
     }
   }, [state]);
 

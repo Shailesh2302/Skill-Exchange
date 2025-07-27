@@ -1,8 +1,8 @@
 import SignupCard from "@/components/signupCard";
 
-const Page = () => {
+const SignUpPage = () => {
   return <SignupCard />
     
 };
 
-export default Page;
+export default SignUpPage;

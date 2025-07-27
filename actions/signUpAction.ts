@@ -2,6 +2,7 @@
 
 import prisma from "@/db/prisma";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
+import { signUpSchema } from "@/schemas/signUpSchema";
 import bcrypt from "bcryptjs";
 // import { randomUUID } from "crypto";
 
@@ -12,6 +13,12 @@ export default async function signupAction(
   const email = formData.get("email") as string;
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
+
+  const result = signUpSchema.safeParse(formData)
+
+  if (!result?.success) {
+    return 
+  }
 
   const existingUsername = await prisma.user.findUnique({
     where: { username },
@@ -48,13 +55,7 @@ export default async function signupAction(
 
       const emailResponse = await sendVerificationEmail(email, username, code);
     if (!emailResponse.success) {
-      return Response.json(
-        {
-          success: false,
-          message: emailResponse.message,
-        },
-        { status: 500 }
-      );
+       throw new Error(emailResponse.message)
     }
 
       return {
