@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/db/prisma";
-import axios from "axios";
 
 export default async function verifyCodeAction(_: unknown, formData: FormData) {
   try {
@@ -39,9 +38,19 @@ export default async function verifyCodeAction(_: unknown, formData: FormData) {
     } else {
       return { success: false, message: "Verifiaction Unccessfull" };
     }
-  } catch (error: any) {
-    console.error("Axios Error:", error?.response?.data || error.message);
-    const errorMsg = error?.response?.data?.message || "Something went wrong";
+  } catch (error: unknown) {
+    let errorMsg = "Something went wrong";
+
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as {
+        response?: { data?: { message?: string } };
+      };
+      errorMsg = axiosError.response?.data?.message || "Something went wrong";
+    } else if (error instanceof Error) {
+      errorMsg = error.message;
+    }
+
+    console.error("Axios Error:", error);
     return { success: false, message: errorMsg };
   }
 }

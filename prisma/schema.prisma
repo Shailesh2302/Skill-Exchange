@@ -7,6 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  //  directUrl = env("DIRECT_URL")
 }
 
 enum MessageType {
@@ -16,10 +17,6 @@ enum MessageType {
   FILE
 }
 
-enum SkillType {
-  OFFERING
-  SEEKING
-}
 
 model User {
   id                  String      @id @default(uuid())
@@ -28,7 +25,7 @@ model User {
   password            String
   bio                 String?
   profilePicture      String?
-  status              String?
+  status              Boolean?
   lastSeen            DateTime?
   verifyCode          String  
   verifyCodeExpiry    DateTime
@@ -101,10 +98,10 @@ model UserSkill {
   id        String      @id @default(uuid())
   userId    String
   skillId   String
-  type      SkillType
 
+  
   user      User       @relation(fields: [userId], references: [id])
   skill     Skill      @relation(fields: [skillId], references: [id])
-
-  @@unique([userId, skillId, type])
+  
+  @@unique([userId, skillId])
 }

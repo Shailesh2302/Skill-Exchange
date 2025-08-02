@@ -9,7 +9,7 @@ import { success } from "zod";
 
 export default async function signupAction(
   prevState: unknown,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     const formDataObj = {
@@ -88,11 +88,19 @@ export default async function signupAction(
       message: "User registered successfully. Please verify your account.",
       username,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return {
+        success: false,
+        message: "Error while Registering the User",
+        error: error.message,
+      };
+    }
+
     return {
       success: false,
-      message: "Error while Registering the User",
-      error: error.message,
+      message: "An unknown error occurred while Registering the User",
+      error: String(error),
     };
   }
 }

@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 const SignInCard = () => {
-   const router = useRouter();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,11 +33,9 @@ const SignInCard = () => {
     },
   });
 
- 
+  const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    setIsSubmitting(true);
 
-  const onSubmit =async (data: z.infer<typeof signInSchema>) => {
-  setIsSubmitting(true);
-    
     try {
       const result = await signIn("credentials", {
         redirect: false,
@@ -71,7 +69,6 @@ const SignInCard = () => {
     }
   };
 
- 
   const containerVariants: Variants = {
     hidden: {
       opacity: 0,
